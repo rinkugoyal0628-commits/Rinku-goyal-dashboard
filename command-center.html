@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Data Analyst Command Center</title>
+<style>
+:root{--bg:#060b1a;--panel:rgba(255,255,255,.05);--line:rgba(255,255,255,.1);--ink:#e6ebff;--mute:#8f9bc4;--faint:#5b6791;--blue:#4f8cff;--violet:#8b5cf6;--cyan:#38bdf8;--red:#f87171;--green:#4ade80;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;background-image:radial-gradient(800px 420px at 5% -8%,rgba(79,140,255,.18),transparent 60%),radial-gradient(600px 420px at 100% 0,rgba(139,92,246,.16),transparent 60%);background-attachment:fixed}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0;font-weight:600}
+.app{display:flex;min-height:100vh}
+nav{width:220px;flex-shrink:0;border-right:1px solid var(--line);background:rgba(10,17,40,.7);backdrop-filter:blur(14px);padding:16px 12px;position:sticky;top:0;height:100vh;transition:width .2s}
+nav.c{width:64px}nav.c .lbl{display:none}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 16px;font-family:Georgia,serif;font-size:17px}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--violet));flex-shrink:0}
+nav a,nav button.t{display:flex;gap:10px;align-items:center;width:100%;padding:10px;border-radius:12px;color:var(--mute);text-decoration:none;background:none;border:0;font:inherit;cursor:pointer;margin-bottom:2px}
+nav a:hover,nav button.t:hover{background:rgba(255,255,255,.06);color:var(--ink)}
+nav a.on{background:rgba(255,255,255,.1);color:var(--ink)}
+.ic{width:22px;text-align:center;flex-shrink:0}
+main{flex:1;min-width:0;padding:22px 20px 90px;max-width:1100px;margin:0 auto;width:100%}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;backdrop-filter:blur(14px);box-shadow:0 8px 28px rgba(3,8,28,.4)}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:2fr 1fr}
+.stat b{display:block;font:600 26px Georgia,serif;margin-top:6px}.stat span{color:var(--mute);font-size:13px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.mute{color:var(--mute)}.faint{color:var(--faint);font-size:12px}
+input,select,textarea{width:100%;background:rgba(10,17,40,.7);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 11px;font:inherit}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+textarea{min-height:64px;resize:vertical}
+.row{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:8px}
+.btn{background:linear-gradient(90deg,var(--blue),var(--violet));color:#fff;border:0;border-radius:10px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}
+.ghost{background:none;border:1px solid var(--line);color:var(--mute);border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.ghost:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+.item{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
+.item>div{flex:1;min-width:0}.item p{margin:2px 0 0;color:var(--mute);font-size:13px;white-space:pre-wrap;word-break:break-word}
+.done .tt{text-decoration:line-through;color:var(--faint)}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--violet));transition:width .6s}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute);margin-left:6px}
+.od{color:var(--red)}.empty{text-align:center;color:var(--mute);padding:22px 8px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px}
+.chips button{white-space:nowrap;background:none;border:1px solid var(--line);color:var(--mute);border-radius:99px;padding:6px 13px;font:inherit;font-size:13px;cursor:pointer}
+.chips button.on{background:rgba(79,140,255,.2);color:var(--ink);border-color:var(--blue)}
+.badge{background:var(--violet);color:#fff;border-radius:99px;font-size:11px;padding:0 6px;margin-left:4px}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#17254f;border:1px solid var(--line);padding:10px 16px;border-radius:12px;z-index:50;max-width:90vw}
+@media(max-width:760px){
+nav{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;height:auto;display:flex;border:0;border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:40;overflow-x:auto;background:rgba(10,17,40,.95)}
+.brand,nav button.t{display:none}nav a{flex-direction:column;gap:0;font-size:10px;padding:6px 10px;width:auto;min-width:62px;margin:0}
+.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}main{padding:16px 14px 100px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav id="nav" aria-label="Main"></nav>
+<main id="v"></main>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script>
+const SK=["Excel","SQL","Python","NumPy","Pandas","Matplotlib","Statistics","Power BI","Tableau","Data Analytics Projects"];
+const LV={"Not started":0,"Beginner":25,"Basic":40,"Intermediate":65,"Advanced":90};
+const ST=["Excel","SQL","Python","Statistics","Data Visualization","Power BI","Real-world Projects","Portfolio Development","Resume Preparation","Job Applications"];
+const PS=["Planning","In Progress","Completed","Published on GitHub"];
+const PAGES=[["dashboard","Dashboard","▦"],["learn","Learning","📘"],["journal","Journal","✎"],["reminders","Reminders","🔔"],["projects","Projects","▣"],["roadmap","Roadmap","➤"]];
+const KEY="dacc.v1";
+let S={topics:[],sessions:[],journal:[],reminders:[],projects:[],skills:{Excel:"Beginner",SQL:"Beginner",Python:"Basic","Power BI":"Beginner"},road:{},collapsed:false};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s);
+const e=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=()=>ymd(new Date());
+let cur="dashboard",skill=SK[1],q="",toastT;
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3500)}
+
+function nav(){const due=S.reminders.filter(r=>!r.done&&new Date(r.at)<new Date()).length;
+$("#nav").className=S.collapsed?"c":"";
+$("#nav").innerHTML=`<div class="brand"><span class="logo"></span><span class="lbl">Command Center</span></div>`+
+PAGES.map(([k,l,i])=>`<a href="#${k}" class="${cur==k?"on":""}" ${cur==k?'aria-current="page"':""}><span class="ic">${i}</span><span class="lbl">${l}${k=="reminders"&&due?`<span class="badge">${due}</span>`:""}</span></a>`).join("")+
+`<button class="t" data-act="collapse"><span class="ic">${S.collapsed?"»":"«"}</span><span class="lbl">Collapse</span></button>`}
+
+const mins=(a,b)=>S.sessions.filter(s=>s.date>=a&&s.date<=b).reduce((n,s)=>n+s.min,0);
+function streak(){let n=0,d=new Date();if(!S.sessions.some(s=>s.date==ymd(d)))d.setDate(d.getDate()-1);
+while(S.sessions.some(s=>s.date==ymd(d))){n++;d.setDate(d.getDate()-1)}return n}
+function week(){const o=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);o.push({d:d.toLocaleDateString("en-IN",{weekday:"short"}),m:mins(ymd(d),ymd(d))})}return o}
+
+function dashboard(){
+const tot=S.sessions.reduce((n,s)=>n+s.min,0),dn=S.topics.filter(t=>t.done).length,pe=S.topics.length-dn;
+const w=week(),wm=w.reduce((n,x)=>n+x.m,0),wp=Math.min(100,Math.round(wm/840*100));
+const m0=new Date();m0.setDate(1);const mm=mins(ymd(m0),today()),mp=Math.min(100,Math.round(mm/(120*30)*100));
+const rd=Math.round(SK.reduce((n,s)=>n+(LV[S.skills[s]||"Not started"]),0)/SK.length);
+const mx=Math.max(60,...w.map(x=>x.m));
+const up=S.reminders.filter(r=>!r.done).sort((a,b)=>a.at.localeCompare(b.at)).slice(0,4);
+const st=[["Total learning hours",(tot/60).toFixed(1)+"h"],["Completed topics",dn],["Pending topics",pe],["Learning streak",streak()+" days"],["Weekly progress",wp+"%"],["Monthly progress",mp+"%"],["Career readiness",rd+"%"],["Today",mins(today(),today())+" / 120 min"]];
+return `<div class="head"><div><h1 style="font-size:30px" id="gr"></h1><div class="mute">Daily target: 2 hours</div></div><div style="text-align:right"><h2 id="clk" style="font-size:22px"></h2><div class="mute" id="dt"></div></div></div>
+<div class="grid g4" style="margin-bottom:12px">${st.map(([l,v])=>`<div class="card stat"><span>${l}</span><b>${v}</b></div>`).join("")}</div>
+<div class="grid g3" style="margin-bottom:12px"><div class="card"><h3>Study minutes, last 7 days</h3>
+<svg viewBox="0 0 350 170" width="100%" role="img" aria-label="Study minutes per day"><defs><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#4f8cff"/></linearGradient></defs>
+${w.map((x,i)=>{const h=Math.round(x.m/mx*120);return `<rect x="${i*50+10}" y="${140-h}" width="30" height="${h}" rx="5" fill="url(#gb)"/><text x="${i*50+25}" y="158" fill="#8f9bc4" font-size="11" text-anchor="middle">${x.d}</text>${x.m?`<text x="${i*50+25}" y="${134-h}" fill="#e6ebff" font-size="10" text-anchor="middle">${x.m}</text>`:""}`}).join("")}</svg></div>
+<div class="card"><h3 style="margin-bottom:10px">Upcoming reminders</h3>${up.length?up.map(r=>`<div class="item"><div><span class="${new Date(r.at)<new Date()?"od":""}">${e(r.title)}</span><p>${new Date(r.at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}</p></div></div>`).join(""):`<div class="empty">No reminders yet. Add one in Reminders.</div>`}</div></div>
+<div class="card"><h3 style="margin-bottom:12px">Skill progress</h3><div class="grid g2">${SK.map(s=>{const l=S.skills[s]||"Not started",p=LV[l];return `<div><div style="display:flex;justify-content:space-between;font-size:14px"><span>${s}</span><span class="mute">${l}</span></div><div class="bar" role="progressbar" aria-valuenow="${p}" aria-label="${s}"><i style="width:${p}%"></i></div></div>`}).join("")}</div></div>`}
+
+function learn(){
+const L=S.topics.filter(t=>t.skill==skill),dn=L.filter(t=>t.done).length,mn=S.sessions.filter(s=>s.skill==skill).reduce((n,s)=>n+s.min,0);
+return `<div class="head"><h1>Learning</h1></div>
+<div class="chips" role="tablist">${SK.map(s=>`<button class="${s==skill?"on":""}" data-act="skill" data-v="${s}">${s}</button>`).join("")}</div>
+<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><div><h3>${skill}</h3><span class="mute">${dn}/${L.length} topics done · ${(mn/60).toFixed(1)}h studied</span></div>
+<label class="mute" style="width:170px">Skill level<select data-act="level">${Object.keys(LV).map(l=>`<option ${S.skills[skill]==l||(!S.skills[skill]&&l=="Not started")?"selected":""}>${l}</option>`).join("")}</select></label></div>
+<div class="bar" style="margin-top:12px"><i style="width:${L.length?Math.round(dn/L.length*100):0}%"></i></div></div>
+<form class="card" data-form="topic" style="margin-bottom:12px"><div class="row"><input name="title" placeholder="Topic title" required maxlength="200"><input name="min" type="number" min="0" max="960" placeholder="Minutes studied"><input name="link" type="url" placeholder="Resource link (optional)"></div>
+<textarea name="learned" placeholder="What I learned / notes"></textarea><div style="margin-top:8px"><button class="btn">Add topic</button></div></form>
+<div class="card">${L.length?L.map(t=>`<div class="item ${t.done?"done":""}"><input type="checkbox" style="width:20px;margin-top:3px" data-act="tog" data-id="${t.id}" ${t.done?"checked":""} aria-label="Mark ${e(t.title)} completed"><div><span class="tt">${e(t.title)}</span>${t.min?`<span class="tag">${t.min} min</span>`:""}${t.link?`<a class="tag" style="color:var(--cyan)" href="${e(t.link)}" target="_blank" rel="noopener">link</a>`:""}${t.learned?`<p>${e(t.learned)}</p>`:""}</div><button class="ghost" data-act="del-topic" data-id="${t.id}">Delete</button></div>`).join(""):`<div class="empty">No ${skill} topics yet. Add your first one above.</div>`}</div>`}
+
+function journal(){
+const k=q.toLowerCase(),L=S.journal.filter(j=>!k||(j.date+" "+j.studied+" "+j.solved+" "+j.ex+" "+j.notes+" "+j.link).toLowerCase().includes(k)).sort((a,b)=>b.date.localeCompare(a.date));
+return `<div class="head"><h1>Journal</h1><input id="q" placeholder="Search by date or keyword" value="${e(q)}" style="max-width:280px"></div>
+<form class="card" data-form="journal" style="margin-bottom:12px"><div class="row"><input name="date" type="date" value="${today()}" required><input name="link" type="url" placeholder="Project link (optional)"></div>
+<textarea name="studied" placeholder="What I studied today" required></textarea><div class="row" style="margin-top:8px"><textarea name="solved" placeholder="Problems I solved"></textarea><textarea name="ex" placeholder="Exercises completed"></textarea></div>
+<textarea name="notes" placeholder="Notes"></textarea><div style="margin-top:8px"><button class="btn">Save entry</button></div></form>
+<div class="card">${L.length?L.map(j=>`<div class="item"><div><b>${j.date}</b>${j.link?`<a class="tag" style="color:var(--cyan)" href="${e(j.link)}" target="_blank" rel="noopener">project</a>`:""}<p><b>Studied:</b> ${e(j.studied)}</p>${j.solved?`<p><b>Solved:</b> ${e(j.solved)}</p>`:""}${j.ex?`<p><b>Exercises:</b> ${e(j.ex)}</p>`:""}${j.notes?`<p>${e(j.notes)}</p>`:""}</div><div style="display:grid;gap:6px"><button class="ghost" data-act="edit-j" data-id="${j.id}">Edit</button><button class="ghost" data-act="del-j" data-id="${j.id}">Delete</button></div></div>`).join(""):`<div class="empty">${q?"No entries match your search.":"No entries yet. Write today’s update above."}</div>`}</div>`}
+
+function reminders(){
+const L=[...S.reminders].sort((a,b)=>a.done-b.done||a.at.localeCompare(b.at)),perm="Notification" in window?Notification.permission:"unsupported";
+return `<div class="head"><h1>Reminders</h1>${perm=="default"?`<button class="ghost" data-act="perm">Turn on notifications</button>`:`<span class="faint">Notifications: ${perm}</span>`}</div>
+<form class="card" data-form="rem" style="margin-bottom:12px"><div class="row"><input name="title" placeholder="Reminder title" required maxlength="200"><input name="at" type="datetime-local" required>
+<select name="rep"><option value="none">One time</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select><select name="pri"><option value="medium">Medium priority</option><option value="high">High priority</option><option value="low">Low priority</option></select></div><button class="btn">Add reminder</button></form>
+<p class="faint" style="margin:0 0 10px">Alerts fire while this page is open. Phone alerts with the app closed need the full backend (Stage 6).</p>
+<div class="card">${L.length?L.map(r=>{const od=!r.done&&new Date(r.at)<new Date();return `<div class="item ${r.done?"done":""}"><input type="checkbox" style="width:20px;margin-top:3px" data-act="rem-done" data-id="${r.id}" ${r.done?"checked":""} aria-label="Mark ${e(r.title)} completed"><div><span class="tt ${od?"od":""}">${e(r.title)}</span><span class="tag">${r.pri}</span>${r.rep!="none"?`<span class="tag">${r.rep}</span>`:""}${od?`<span class="tag od">overdue</span>`:""}<p>${new Date(r.at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}</p></div><button class="ghost" data-act="del-rem" data-id="${r.id}">Delete</button></div>`}).join(""):`<div class="empty">No reminders yet. Add one above.</div>`}</div>`}
+
+function projects(){
+return `<div class="head"><h1>Projects</h1></div>
+<form class="card" data-form="proj" style="margin-bottom:12px"><div class="row"><input name="name" placeholder="Project name" required maxlength="200"><input name="tech" placeholder="Technologies (comma separated)"><select name="status">${PS.map(s=>`<option>${s}</option>`).join("")}</select><input name="gh" type="url" placeholder="GitHub repository link"><input name="done" type="date" aria-label="Completion date"></div>
+<textarea name="desc" placeholder="Description and notes"></textarea><div style="margin-top:8px"><button class="btn">Add project</button></div></form>
+<div class="card">${S.projects.length?S.projects.map(p=>`<div class="item"><div><b>${e(p.name)}</b>${p.gh?`<a class="tag" style="color:var(--cyan)" href="${e(p.gh)}" target="_blank" rel="noopener">GitHub</a>`:""}<div style="margin:4px 0">${p.tech.map(t=>`<span class="tag" style="margin:0 4px 0 0">${e(t)}</span>`).join("")}</div>${p.desc?`<p>${e(p.desc)}</p>`:""}${p.done?`<p>Completed: ${p.done}</p>`:""}</div><div style="display:grid;gap:6px;width:150px"><select data-act="pstat" data-id="${p.id}">${PS.map(s=>`<option ${s==p.status?"selected":""}>${s}</option>`).join("")}</select><button class="ghost" data-act="del-p" data-id="${p.id}">Delete</button></div></div>`).join(""):`<div class="empty">No projects yet. Add your first one above.</div>`}</div>
+<div class="grid g4" style="margin-top:12px">${PS.map(s=>`<div class="card stat"><span>${s}</span><b>${S.projects.filter(p=>p.status==s).length}</b></div>`).join("")}</div>`}
+
+function roadmap(){
+return `<div class="head"><h1>Career roadmap</h1></div><div class="card">${ST.map((s,i)=>{const p=S.road[i]??0;return `<div class="item"><div><div style="display:flex;justify-content:space-between"><span>Stage ${i+1}: ${s}</span><span class="mute">${p}%</span></div><input type="range" min="0" max="100" step="5" value="${p}" data-act="road" data-i="${i}" aria-label="${s} progress"><div class="bar" style="margin-top:6px"><i style="width:${p}%"></i></div></div></div>`}).join("")}</div>`}
+
+const VIEWS={dashboard,learn,journal,reminders,projects,roadmap};
+function render(){const h=location.hash.slice(1);cur=VIEWS[h]?h:"dashboard";nav();
+const f=document.activeElement&&document.activeElement.id=="q";const pos=f?document.activeElement.selectionStart:0;
+$("#v").innerHTML=VIEWS[cur]();tick();
+if(f){const i=$("#q");i.focus();i.setSelectionRange(pos,pos)}}
+function tick(){const n=new Date(),g=$("#gr");if(!g)return;const h=n.getHours();
+g.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Rinku";
+$("#clk").textContent=n.toLocaleTimeString("en-IN");$("#dt").textContent=n.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+setInterval(tick,1000);
+
+document.addEventListener("submit",ev=>{ev.preventDefault();const f=ev.target,d=Object.fromEntries(new FormData(f)),k=f.dataset.form;
+if(k=="topic"){const m=+d.min||0,id=uid();S.topics.push({id,skill,title:d.title.trim(),min:m,link:d.link,learned:d.learned,done:false});
+if(m)S.sessions.push({id:uid(),skill,date:today(),min:m,topic:id});toast("Topic added")}
+if(k=="journal"){S.journal.push({id:uid(),date:d.date,studied:d.studied,solved:d.solved,ex:d.ex,notes:d.notes,link:d.link});toast("Entry saved")}
+if(k=="rem"){S.reminders.push({id:uid(),title:d.title.trim(),at:new Date(d.at).toISOString(),rep:d.rep,pri:d.pri,done:false});toast("Reminder added")}
+if(k=="proj"){S.projects.push({id:uid(),name:d.name.trim(),tech:d.tech.split(",").map(x=>x.trim()).filter(Boolean),status:d.status,gh:d.gh,done:d.done,desc:d.desc});toast("Project added")}
+save();render()});
+
+document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");if(!b||b.tagName=="SELECT"||b.type=="range"||b.type=="checkbox")return;const a=b.dataset.act,id=b.dataset.id;
+if(a=="collapse")S.collapsed=!S.collapsed;
+if(a=="skill")skill=b.dataset.v;
+if(a=="del-topic"&&confirm("Delete this topic?")){S.topics=S.topics.filter(t=>t.id!=id);S.sessions=S.sessions.filter(s=>s.topic!=id)}
+if(a=="del-j"&&confirm("Delete this entry?"))S.journal=S.journal.filter(j=>j.id!=id);
+if(a=="edit-j"){const j=S.journal.find(x=>x.id==id),v=prompt("Edit what you studied:",j.studied);if(v!==null&&v.trim())j.studied=v.trim()}
+if(a=="del-rem"&&confirm("Delete this reminder?"))S.reminders=S.reminders.filter(r=>r.id!=id);
+if(a=="del-p"&&confirm("Delete this project?"))S.projects=S.projects.filter(p=>p.id!=id);
+if(a=="perm"){Notification.requestPermission().then(render);return}
+save();render()});
+
+document.addEventListener("change",ev=>{const b=ev.target,a=b.dataset.act,id=b.dataset.id;if(!a)return;
+if(a=="tog"){const t=S.topics.find(x=>x.id==id);t.done=b.checked}
+if(a=="level")S.skills[skill]=b.value;
+if(a=="rem-done"){const r=S.reminders.find(x=>x.id==id);r.done=b.checked}
+if(a=="pstat")S.projects.find(p=>p.id==id).status=b.value;
+save();render()});
+document.addEventListener("input",ev=>{const b=ev.target;
+if(b.id=="q"){q=b.value;render()}
+if(b.dataset.act=="road"){S.road[b.dataset.i]=+b.value;save();b.closest(".item").querySelector(".bar i").style.width=b.value+"%";b.closest(".item").querySelector(".mute").textContent=b.value+"%"}});
+
+function check(){const now=new Date();let ch=false;
+S.reminders.forEach(r=>{if(r.done||r.fired==r.at||new Date(r.at)>now)return;r.fired=r.at;ch=true;
+toast("Reminder: "+r.title);try{if("Notification" in window&&Notification.permission=="granted")new Notification("Reminder",{body:r.title})}catch(x){}
+if(r.rep!="none"){const d=new Date(r.at);while(d<=now){r.rep=="daily"?d.setDate(d.getDate()+1):r.rep=="weekly"?d.setDate(d.getDate()+7):d.setMonth(d.getMonth()+1)}r.at=d.toISOString()}});
+if(ch){save();render()}}
+setInterval(check,20000);
+window.addEventListener("hashchange",render);
+check();render();
+</script>
+</body>
+</html>
